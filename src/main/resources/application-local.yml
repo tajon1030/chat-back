@@ -1,12 +1,13 @@
 spring:
-  profiles:
-    active: local
-
   devtools:
     livereload:
       enabled: true
     restart:
       enabled: false
+  redis:
+    port: 6379
+    host: localhost
+
 
 server:
   port: 8083
