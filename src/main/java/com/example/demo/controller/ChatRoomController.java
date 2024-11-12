@@ -2,11 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ChatRoom;
 import com.example.demo.repository.ChatRoomRepository;
-import com.example.demo.security.JwtTokenProvider;
-import com.example.demo.security.LoginInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +13,6 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final JwtTokenProvider provider;
 
     /**
      * 전체 채팅방 목록 반환
@@ -49,13 +44,5 @@ public class ChatRoomController {
     @GetMapping("/room/{roomId}")
     public ChatRoom roomInfo(@PathVariable String roomId) {
         return chatRoomRepository.findRoomById(roomId);
-    }
-
-    @GetMapping("/user")
-    public LoginInfo getUserInfo(){
-        // 로그인회원 정보를 가져와서 id를 token으로 생성해 LoginInfo로 전달해줌
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String name = auth.getName();
-        return LoginInfo.builder().name(name).token(provider.generateToken(name)).build();
     }
 }
