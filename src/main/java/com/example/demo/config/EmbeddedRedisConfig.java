@@ -9,8 +9,8 @@ import redis.embedded.RedisServer;
 
 import java.io.IOException;
 
-@Configuration
-@Profile("local")
+//@Configuration
+//@Profile("local")
 public class EmbeddedRedisConfig {
 
     @Value("${spring.redis.port}")
