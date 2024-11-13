@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ChatMessage;
-import com.example.demo.repository.ChatRoomRepository;
 import com.example.demo.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,17 +16,15 @@ import org.springframework.stereotype.Controller;
 public class ChatController {
 
     private final JwtTokenProvider provider;
-    private final RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final ChannelTopic channelTopic;
 
     @MessageMapping("/chat/message")
-    public void greeting(ChatMessage message, @Header("token") String token) throws Exception {
-        String id = provider.getClaims(token)
-                .getId();
+    public void greeting(ChatMessage message, @Header("Authorization") String token) throws Exception {
+        String id = provider.getUsername(token);
         // 로그인 회원 정보로 대화명 설정
-        message.setSender(id);
         if (ChatMessage.MessageType.ENTER.equals(message.getType())) {
-            message.setSender("[알림]");
+            message.setSender(id);
             message.setMessage(id + "님이 입장하셨습니다.");
         }
         // Websocket에 발행된 메시지를 redis로 발행

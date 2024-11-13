@@ -21,7 +21,7 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (StompCommand.CONNECT == accessor.getCommand()) {
-            if (jwtTokenProvider.validateToken(accessor.getFirstNativeHeader("token"))) {
+            if (jwtTokenProvider.validateToken(accessor.getFirstNativeHeader("Authorization"))) {
                 throw new RuntimeException("token expired");
             }
         }

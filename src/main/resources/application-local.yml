@@ -3,7 +3,7 @@ spring:
     port: 6379
     host: host.docker.internal
   jwt:
-    secret: test1234
+    secret: goodbye2024hi2025hichristmas2024
 
 
 server:

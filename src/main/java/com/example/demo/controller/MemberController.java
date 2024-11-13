@@ -5,7 +5,7 @@ import com.example.demo.security.LoginInfo;
 import com.example.demo.security.LoginRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,12 +20,14 @@ public class MemberController {
     private final JwtTokenProvider provider;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginInfo> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginInfo> login(LoginRequestDTO request) {
         // 시큐리티로그인 + jwt토큰 생성하여 리턴값으로 전달해줌
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        // 로그인회원 정보를 가져와서 id를 token으로 생성해 LoginInfo로 전달해줌
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String name = auth.getName();
+        // 로그인회원 id를 token으로 생성해 LoginInfo로 전달해줌
+        String name = authenticationToken.getName();
         LoginInfo loginInfo = LoginInfo.builder().name(name).token(provider.generateToken(name)).build();
         return ResponseEntity.ok()
                 .body(loginInfo);
