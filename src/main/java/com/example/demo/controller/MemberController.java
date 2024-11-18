@@ -22,6 +22,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginInfo> login(LoginRequestDTO request) {
+        log.info(request.getUsername()+"hihi");
         // 시큐리티로그인 + jwt토큰 생성하여 리턴값으로 전달해줌
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());

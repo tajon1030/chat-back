@@ -21,7 +21,9 @@ public class ChatRoomController {
      */
     @GetMapping("/rooms")
     public List<ChatRoom> room() {
-        return chatRoomRepository.findAllRoom();
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllRoom();
+        chatRooms.forEach(room -> room.setUserCount(chatRoomRepository.getUserCount(room.getRoomId())));
+        return  chatRooms;
     }
 
     /**

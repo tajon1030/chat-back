@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -62,6 +63,9 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
+        log.info(token);
+        log.info("토큰에서 아이디가져오기");
+        log.info(getClaims(token).getId());
         return getClaims(token).getId();
     }
 
