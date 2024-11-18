@@ -24,7 +24,7 @@ public class MemberController {
     public ResponseEntity<LoginInfo> login(LoginRequestDTO request) {
         // 시큐리티로그인 + jwt토큰 생성하여 리턴값으로 전달해줌
         UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(request.getId(), request.getPassword());
+                = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         // 로그인회원 id를 token으로 생성해 LoginInfo로 전달해줌

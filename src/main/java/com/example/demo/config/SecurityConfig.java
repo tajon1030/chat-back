@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/member/login").permitAll()
+                                .requestMatchers("/ws-stomp/**").permitAll()
                                 .requestMatchers("/**").authenticated()
                                 .anyRequest().authenticated()
                 )

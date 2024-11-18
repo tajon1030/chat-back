@@ -22,7 +22,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // TODO https://chaewsscode.tistory.com/234 이거보고 리팩토링하기
-        if (request.getRequestURI().startsWith("/member/login")) {
+        if (request.getRequestURI().startsWith("/member/login")
+        || request.getRequestURI().startsWith("/ws-stomp")) {
             return true;
         }
         return false;

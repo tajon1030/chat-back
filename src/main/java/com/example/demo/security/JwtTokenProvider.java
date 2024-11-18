@@ -10,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -79,7 +78,7 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token) {
-        return !getClaims(token).isEmpty();//.getExpiration().before(Date.from(ZonedDateTime.now().toInstant()));
+        return getClaims(token).getExpiration().after(Date.from(ZonedDateTime.now().toInstant()));
     }
 
     public String resolveToken(String bearerToken) {
