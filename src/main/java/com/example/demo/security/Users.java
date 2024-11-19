@@ -5,19 +5,17 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Users extends User {
 
     private String id;
     private String pw;
-    private List<String> roleNames = new ArrayList<>();
+    private List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-    public Users(String username, String password, List<String> roleNames) {
-        super(username, password, roleNames.stream().map(str -> new SimpleGrantedAuthority("ROLE_" + str))
-                .collect(Collectors.toList()));
+    public Users(String username, String password, List<SimpleGrantedAuthority> authorities) {
+        super(username, password, authorities);
         this.id = username;
         this.pw = password;
-        this.roleNames = roleNames;
+        this.authorities = authorities;
     }
 }

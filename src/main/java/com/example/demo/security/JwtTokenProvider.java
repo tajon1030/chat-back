@@ -6,13 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,12 +26,16 @@ public class JwtTokenProvider {
     private String secretKey;
     private long tokenValidMin = 60; // 60분
 
-    public String generateToken(String name) {
-        SecretKey key = null;
-        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    public String generateToken(Authentication authentication) {
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        // 인증된 사용자의 권한 목록 조회
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         return Jwts.builder()
-                .id(name)
-                .claim("roleNames", List.of(""))
+                .id(authentication.getName())
+                .claim("roleNames", authorities)
                 .issuedAt(Date.from(ZonedDateTime.now().toInstant()))// 토큰발행일자
                 .expiration(Date.from(ZonedDateTime.now().plusMinutes(tokenValidMin).toInstant()))
                 .signWith(key)
@@ -63,22 +69,20 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
-        log.info(token);
-        log.info("토큰에서 아이디가져오기");
-        log.info(getClaims(token).getId());
         return getClaims(token).getId();
-    }
-
-    public List<String> getRoleNames(String token) {
-        return (List<String>) getClaims(token).get("roleNames");
     }
 
     // JWT 토큰에서 사용자 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
-        String username = getUsername(token);
-        List<SimpleGrantedAuthority> roles = getRoleNames(token).stream().map(str -> new SimpleGrantedAuthority("ROLE_" + str))
+        List<SimpleGrantedAuthority> roles = Arrays.stream(getClaims(token).get("roleNames").toString().split(","))
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        return new UsernamePasswordAuthenticationToken(username, "", roles);
+
+        String username = getUsername(token);
+
+        //https://velog.io/@sonaky47/Spring-Security-Jwt-토큰정보로-필터링-된-유저정보를-컨트롤러단에서-AuthenticationPricipal-어노테이션을-통해-가져오는법
+        User principal = new User(username, "", roles);
+        return new UsernamePasswordAuthenticationToken(principal, "", roles);
     }
 
     public boolean validateToken(String token) {

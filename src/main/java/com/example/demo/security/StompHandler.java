@@ -10,6 +10,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
@@ -33,6 +34,9 @@ public class StompHandler implements ChannelInterceptor {
             if (!jwtTokenProvider.validateToken(accessor.getFirstNativeHeader("Authorization"))) {
                 throw new RuntimeException("token expired");
             }
+            // 사용자 인증 정보 설정
+            Authentication authentication = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization"));
+            accessor.setUser(authentication);
         } else if (StompCommand.SUBSCRIBE == accessor.getCommand()) {
             // header에서 구독 destination정보를 얻고 roomId 추출
             String roomId = chatService.getRoomId(
@@ -44,9 +48,7 @@ public class StompHandler implements ChannelInterceptor {
             // 채팅방인원수 +1
             chatRoomRepository.plusUserCount(roomId);
             // 클라이언트 입장메시지를 채팅방에 발송
-            String name = Optional.ofNullable((Principal) message.getHeaders().get("simpUser"))
-                    .map(Principal::getName)
-                    .orElse("UnknownUser");
+            String name = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization")).getName();
             chatService.sendChatMassage(ChatMessage.builder()
                     .type(ChatMessage.MessageType.ENTER)
                     .roomId(roomId)
@@ -59,9 +61,7 @@ public class StompHandler implements ChannelInterceptor {
             // 채팅방 인원수 -1
             chatRoomRepository.minusUserCount(roomId);
             // 퇴장메시지를 채팅방에 발송
-            String name = Optional.ofNullable((Principal) message.getHeaders().get("simpUser"))
-                    .map(Principal::getName)
-                    .orElse("UnknownUser");
+            String name = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization")).getName();
             chatService.sendChatMassage(ChatMessage.builder()
                     .type(ChatMessage.MessageType.QUIT)
                     .roomId(roomId)
