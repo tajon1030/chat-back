@@ -1,7 +1,8 @@
-package com.example.demo.security;
+package com.example.demo.config;
 
 import com.example.demo.dto.ChatMessage;
 import com.example.demo.repository.ChatRoomRepository;
+import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,8 @@ public class StompHandler implements ChannelInterceptor {
             // 채팅방 인원수 -1
             chatRoomRepository.minusUserCount(roomId);
             // 퇴장메시지를 채팅방에 발송
-            String name = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization")).getName();
+            String token = accessor.getFirstNativeHeader("Authorization");
+            String name = jwtTokenProvider.getAuthentication(token).getName();
             chatService.sendChatMessage(ChatMessage.builder()
                     .type(ChatMessage.MessageType.QUIT)
                     .roomId(roomId)

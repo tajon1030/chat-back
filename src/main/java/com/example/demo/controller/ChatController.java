@@ -6,9 +6,13 @@ import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,7 +31,15 @@ public class ChatController {
         // 채팅방 인원수 세팅
         message.setUserCount(chatRoomRepository.getUserCount(message.getRoomId()));
         // Websocket에 발행된 메시지를 redis로 발행
-        chatService.sendChatMassage(message);
+        chatService.sendChatMessage(message);
+    }
+
+    @ResponseBody
+    @GetMapping("/chat/room/{roomId}/messages")
+    public ResponseEntity<?> getChatMessages(@PathVariable String roomId) {
+        // TODO 내가 참여한 채팅방인지 검증 필요
+        return ResponseEntity.ok()
+                .body(chatService.getChatMessages(roomId));
     }
 
 }

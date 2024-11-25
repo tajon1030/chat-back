@@ -38,6 +38,8 @@ public class SecurityConfig {
                         authorize -> authorize
                                 .requestMatchers("/member/login").permitAll()
                                 .requestMatchers("/ws-stomp/**").permitAll()
+                                .requestMatchers("/sample/**").permitAll()
+                                .requestMatchers("/save/**").permitAll()
                                 .requestMatchers("/**").authenticated()
                                 .anyRequest().authenticated()
                 )

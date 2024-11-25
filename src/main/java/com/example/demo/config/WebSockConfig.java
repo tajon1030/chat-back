@@ -1,6 +1,5 @@
 package com.example.demo.config;
 
-import com.example.demo.security.StompHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -18,7 +17,16 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
+        // 메시지 구독 url
+//        registry.enableStompBrokerRelay("/exchange")
+//                        .setClientLogin("user")
+//                        .setClientPasscode("password")
+//                        .setRelayPort();
+
         registry.enableSimpleBroker("/sub");
+
+        // 메시지 발행 url
+//        registry.setPathMatcher(new AntPathMatcher("."));
         registry.setApplicationDestinationPrefixes("/pub");
     }
 
@@ -30,6 +38,7 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     /**
      * Websocket 앞단에서 token 체크할수있도록 stompHandler를 인터셉터로 설정
+     *
      * @param registration
      */
     @Override

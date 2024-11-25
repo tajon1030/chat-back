@@ -7,3 +7,14 @@ spring:
       enabled: true
     restart:
       enabled: false
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: username
+    password: password
+    queue:
+
+  data:
+    mongodb:
+      uri: mongodb://testuser:testuser@localhost:27017/test
