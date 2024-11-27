@@ -30,21 +30,26 @@ public class StompHandler implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+
         if (StompCommand.CONNECT == accessor.getCommand()) {
+            // 사용자 인증 정보 설정
+            Authentication authentication = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization"));
             if (!jwtTokenProvider.validateToken(accessor.getFirstNativeHeader("Authorization"))) {
                 throw new RuntimeException("token expired");
             }
             // 사용자 인증 정보 설정
-            Authentication authentication = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization"));
             accessor.setUser(authentication);
         } else if (StompCommand.SUBSCRIBE == accessor.getCommand()) {
+            // TODO 새입장유저 - 기존유저 확인해서 새입장유저일경우에만 인원수 증가시키고 입장메시지 발송하도록 한다.
+            // 사용자 인증 정보 설정
+            Authentication authentication = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization"));
             // header에서 구독 destination정보를 얻고 roomId 추출
             String roomId = chatService.getRoomId(
                     Optional.ofNullable((String) message.getHeaders().get("simpDestination"))
                             .orElse("InvalidRoomId"));
-            // 채팅방에 들어온 클라이언트 sessionId와 roomId 매핑
-            String sessionId = (String) message.getHeaders().get("simpSessionId");
-            chatRoomRepository.setUserEnterInfo(sessionId, roomId);
+
+            // 채팅방에 들어온 클라이언트 유저id와 roomId 매핑
+            chatRoomRepository.setUserEnterInfo(authentication.getName(), roomId);
             // 채팅방인원수 +1
             chatRoomRepository.plusUserCount(roomId);
             // 클라이언트 입장메시지를 채팅방에 발송
@@ -54,22 +59,6 @@ public class StompHandler implements ChannelInterceptor {
                     .roomId(roomId)
                     .sender(name)
                     .build());
-        } else if (StompCommand.DISCONNECT == accessor.getCommand()) {
-            // 연결이 종료된 클라이언트 sessionId로 채팅방id를 얻는다
-            String sessionId = (String) message.getHeaders().get("simpSessionId");
-            String roomId = chatRoomRepository.getUserEnterRoomId(sessionId);
-            // 채팅방 인원수 -1
-            chatRoomRepository.minusUserCount(roomId);
-            // 퇴장메시지를 채팅방에 발송
-            String token = accessor.getFirstNativeHeader("Authorization");
-            String name = jwtTokenProvider.getAuthentication(token).getName();
-            chatService.sendChatMessage(ChatMessage.builder()
-                    .type(ChatMessage.MessageType.QUIT)
-                    .roomId(roomId)
-                    .sender(name)
-                    .build());
-            // 퇴장한 클라이언트-room 매핑정보 삭제
-            chatRoomRepository.removeUserEnterInfo(sessionId);
         }
         return message;
     }

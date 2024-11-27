@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -38,7 +39,6 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     /**
      * Websocket 앞단에서 token 체크할수있도록 stompHandler를 인터셉터로 설정
-     *
      * @param registration
      */
     @Override

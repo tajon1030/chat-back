@@ -18,7 +18,7 @@ public class ChatRoomRepository {
     // Redis
     private static final String CHAT_ROOMS = "CHAT_ROOM"; // 채팅룸 저장
     private static final String USER_COUNT = "USER_COUNT"; // 채팅룸 입장 클라이언트수 저장
-    private static final String ENTER_INFO = "ENTER_INFO"; // 채팅룸 입장 클라이언트 sessionId - 채팅룸id 매핑저장
+    private static final String ENTER_INFO = "ENTER_INFO"; // 채팅룸 입장 클라이언트 userId - 채팅룸id 매핑저장
     private final RedisTemplate<String, Object> redisTemplate;
     @Resource(name = "redisTemplate")
     private HashOperations<String, String, ChatRoom> opsHashChatRoom;
@@ -54,28 +54,23 @@ public class ChatRoomRepository {
     }
 
     /**
-     * 입장한 채팅방id와 유저세션id 매핑정보 저장
-     * @param sessionId
+     * 입장한 채팅방id와 유저id 매핑정보 저장
+     * @param userId
      * @param roomId
      */
-    public void setUserEnterInfo(String sessionId, String roomId){
-        opsHashEnterInfo.put(ENTER_INFO, sessionId, roomId);
+    public void setUserEnterInfo(String userId, String roomId){
+        opsHashEnterInfo.put(ENTER_INFO, userId, roomId);
+    }
+
+    public void isExistsUserEnterInfo(String userId, String roomId){
+
     }
 
     /**
-     * 유저세션정보로 입장한 채팅방 id 조회
-     * @param sessionId
-     * @return
+     * userId - 채팅방id 매핑내역 삭제
      */
-    public String getUserEnterRoomId(String sessionId){
-        return opsHashEnterInfo.get(ENTER_INFO, sessionId);
-    }
-
-    /**
-     * 유저세션 - 채팅방id 매핑내역 삭제
-     */
-    public void removeUserEnterInfo(String sessionId){
-        opsHashEnterInfo.delete(ENTER_INFO, sessionId);
+    public void removeUserEnterInfo(String userId, String roomId){
+        opsHashEnterInfo.delete(ENTER_INFO, userId, roomId);
     }
 
     /**

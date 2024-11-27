@@ -52,7 +52,8 @@ redis는 인메모리 DB로 메시지큐와 유사한 기능을 일부 제공한
 ## DB
 영속적 데이터(채팅 메시지) 저장을 위해서 DB를 연동.  
 ### MySQL
-기본 사용자 정보 및 채팅방 정보 등은 관계형database인 MySQL에서 관리하도록 한다.
+기본 사용자 정보 및 채팅방 정보 등은 관계형database인 MySQL에서 관리하도록 한다.  
+`docker run -p 3309:3306 -e MYSQL_ROOT_PASSWORD=1234 --name mysql-container mysql:lts`  
 
 ### MongoDB
 채팅 서버에서 필요한 빠른 쓰기 성능, 유연한 데이터 모델링, 실시간 데이터 처리, 수평적 확장성을 만족하는 database.  
