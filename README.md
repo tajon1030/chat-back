@@ -55,6 +55,18 @@ redis는 인메모리 DB로 메시지큐와 유사한 기능을 일부 제공한
 기본 사용자 정보 및 채팅방 정보 등은 관계형database인 MySQL에서 관리하도록 한다.  
 `docker run -p 3309:3306 -e MYSQL_ROOT_PASSWORD=1234 --name mysql-container mysql:lts`  
 
+#### CHAT_COOM
+자동증가 ID를 사용할경우 roomId순서를 예측할수있기때문에 보안위험이 증가할수있다. 따라서 uuid를 사용하여 채팅방의 ID를 설정해주도록 하였다.  
+
+#### CHAT_MEMBER
+채팅방(CHAT_ROOM)과 회원(MEMBER)의 다대다 관계를 처리하기위해 생성한 테이블.  
+복합키를 사용할경우 `@EmbeddedId`와 `@IdClass`중 어느것을 사용할것인지에 대한 고민.  
+우선 엔티티 작성 비용을 줄이기 위하여 `@EmbeddedId`를 선택해서 구현하였다.(수정할지도?)
+[복합키를 가지는 JPA 엔티티 생성하기](https://woo-chang.tistory.com/43)
+
+#### 비즈니스로직을 어디에 넣을것인가
+[비즈니스로직을 엔티티에 넣기](https://velog.io/@kevin_/엔티티에-비즈니스-로직-찬반)  
+
 ### MongoDB
 채팅 서버에서 필요한 빠른 쓰기 성능, 유연한 데이터 모델링, 실시간 데이터 처리, 수평적 확장성을 만족하는 database.  
 MongoDB는 문서 지향 데이터베이스로, 정형화된 데이터 모델을 가지지 않고 각 채팅 메시지를 독립적인 문서로 저장할 수 있다.  

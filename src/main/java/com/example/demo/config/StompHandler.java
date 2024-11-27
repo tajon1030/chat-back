@@ -1,8 +1,9 @@
 package com.example.demo.config;
 
 import com.example.demo.dto.ChatMessage;
-import com.example.demo.repository.ChatRoomRepository;
+import com.example.demo.repository.ChatRoomRepository2;
 import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,8 @@ public class StompHandler implements ChannelInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatService chatService;
-    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomService chatRoomService;
+    private final ChatRoomRepository2 chatRoomRepository2;
 
 
     // websocket을 통해 들어온 요청이 처리 되기전 실행
@@ -49,9 +51,9 @@ public class StompHandler implements ChannelInterceptor {
                             .orElse("InvalidRoomId"));
 
             // 채팅방에 들어온 클라이언트 유저id와 roomId 매핑
-            chatRoomRepository.setUserEnterInfo(authentication.getName(), roomId);
+            chatRoomRepository2.setUserEnterInfo(authentication.getName(), roomId);
             // 채팅방인원수 +1
-            chatRoomRepository.plusUserCount(roomId);
+            chatRoomRepository2.plusUserCount(roomId);
             // 클라이언트 입장메시지를 채팅방에 발송
             String name = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization")).getName();
             chatService.sendChatMessage(ChatMessage.builder()

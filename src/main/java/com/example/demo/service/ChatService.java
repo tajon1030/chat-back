@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.ChatMessage;
 import com.example.demo.repository.ChatMessageRepository;
-import com.example.demo.repository.ChatRoomRepository;
+import com.example.demo.repository.ChatRoomRepository2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,7 +16,7 @@ import java.util.List;
 @Log4j2
 public class ChatService {
     
-    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomRepository2 chatRoomRepository2;
     private final ChatMessageRepository chatMessageRepository;
     private final RedisTemplate redisTemplate;
     private final ChannelTopic channelTopic;
@@ -39,7 +39,7 @@ public class ChatService {
      * @param chatMessage
      */
     public void sendChatMessage(ChatMessage chatMessage){
-        chatMessage.setUserCount(chatRoomRepository.getUserCount(chatMessage.getRoomId()));
+        chatMessage.setUserCount(chatRoomRepository2.getUserCount(chatMessage.getRoomId()));
         if (ChatMessage.MessageType.ENTER.equals(chatMessage.getType())) {
             chatMessage.setMessage(chatMessage.getSender() + "님이 방에 입장했습니다.");
             chatMessage.setSender("[알림]");

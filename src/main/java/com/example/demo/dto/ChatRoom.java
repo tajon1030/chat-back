@@ -1,27 +1,27 @@
 package com.example.demo.dto;
 
+import com.example.demo.entity.ChatRoomEntity;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class ChatRoom implements Serializable {
+@Builder
+public class ChatRoom {
 
-    @Serial
-    private static final long serialVersionUID = 6494678977089006639L;
-    private String roomId;
+    private UUID roomId;
     private String name;
     private long userCount;
 
-    public static ChatRoom create(String name) {
-        ChatRoom chatRoom = new ChatRoom();
-        chatRoom.roomId = UUID.randomUUID().toString();
-        chatRoom.name = name;
-        chatRoom.userCount = 0L;
-        return chatRoom;
+    public static ChatRoom fromEntity(ChatRoomEntity entity, long userCount) {
+        return ChatRoom.builder()
+                .roomId(entity.getId())
+                .name(entity.getName())
+                .userCount(userCount)
+                .build();
     }
+
 }
