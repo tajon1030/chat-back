@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -27,7 +28,6 @@ public class JwtTokenProvider {
     private long tokenValidMin = 60; // 60분
 
     public String generateToken(Authentication authentication) {
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         // 인증된 사용자의 권한 목록 조회
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -38,8 +38,12 @@ public class JwtTokenProvider {
                 .claim("roleNames", authorities)
                 .issuedAt(Date.from(ZonedDateTime.now().toInstant()))// 토큰발행일자
                 .expiration(Date.from(ZonedDateTime.now().plusMinutes(tokenValidMin).toInstant()))
-                .signWith(key)
+                .signWith(key())
                 .compact();
+    }
+
+    private Key key() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public Claims getClaims(String jwt) {

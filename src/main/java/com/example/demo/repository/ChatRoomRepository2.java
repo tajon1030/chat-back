@@ -27,25 +27,6 @@ public class ChatRoomRepository2 {
     private ValueOperations<String, String> opsValue;
 
 
-    /**
-     * 입장한 채팅방id와 유저id 매핑정보 저장
-     * @param userId
-     * @param roomId
-     */
-    public void setUserEnterInfo(String userId, String roomId){
-        opsHashEnterInfo.put(ENTER_INFO, userId, roomId);
-    }
-
-    public void isExistsUserEnterInfo(String userId, String roomId){
-
-    }
-
-    /**
-     * userId - 채팅방id 매핑내역 삭제
-     */
-    public void removeUserEnterInfo(String userId, String roomId){
-        opsHashEnterInfo.delete(ENTER_INFO, userId, roomId);
-    }
 
     /**
      * 채팅방 인원수 조회
@@ -54,24 +35,6 @@ public class ChatRoomRepository2 {
      */
     public long getUserCount(String roomId){
         return Long.parseLong(Optional.ofNullable(opsValue.get(USER_COUNT+"_"+roomId)).orElse("0"));
-    }
-
-    /**
-     * 입장 유저수 + 1
-     * @param roomId
-     * @return
-     */
-    public long plusUserCount(String roomId){
-        return Optional.ofNullable(opsValue.increment(USER_COUNT+"_"+roomId)).orElse(0L);
-    }
-
-    /**
-     * 입장 유저수 - 1
-     * @param roomId
-     * @return
-     */
-    public long minusUserCount(String roomId){
-        return Optional.ofNullable(opsValue.decrement(USER_COUNT+"_"+roomId)).filter(count -> count > 0).orElse(0L);
     }
 
 }

@@ -1,21 +1,45 @@
 package com.example.demo.security;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import com.example.demo.entity.Role;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-public class Users extends User {
+@Entity
+@Getter
+@Setter
+@Table(name = "USERS",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
+public class Users {
 
-    private String id;
-    private String pw;
-    private List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long seq;
+    private String username;
 
-    public Users(String username, String password, List<SimpleGrantedAuthority> authorities) {
-        super(username, password, authorities);
-        this.id = username;
-        this.pw = password;
-        this.authorities = authorities;
+    @Email
+    private String email;
+
+    private String password;
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "USER_ROLES",
+            joinColumns = @JoinColumn(name = "USER_SEQ"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    private Set<Role> roles = new HashSet<>();
+
+
+    public Users(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 }

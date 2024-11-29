@@ -3,6 +3,7 @@ package com.example.demo.config.page;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -19,14 +20,16 @@ public class PageableHandlerMethodArgumentResolver implements HandlerMethodArgum
     private final String offsetParam;
 
     private final String limitParam;
+    private final String sortParam;
 
     public PageableHandlerMethodArgumentResolver() {
-        this("offset", "limit");
+        this("offset", "limit","sort");
     }
 
-    public PageableHandlerMethodArgumentResolver(String offsetParam, String limitParam) {
+    public PageableHandlerMethodArgumentResolver(String offsetParam, String limitParam, String sortParam) {
         this.offsetParam = offsetParam;
         this.limitParam = limitParam;
+        this.sortParam = sortParam;
     }
 
     @Override
@@ -49,7 +52,21 @@ public class PageableHandlerMethodArgumentResolver implements HandlerMethodArgum
             limit = DEFAULT_LIMIT;
         }
 
-        return PageRequest.of(offset, limit);
+
+        String sortString = webRequest.getParameter(sortParam);
+        Sort sort = null;
+        if (sortString != null && !sortString.isEmpty()) {
+            String[] sortParams = sortString.split(",");
+            if (sortParams.length > 0) {
+                String property = sortParams[0];
+                Sort.Order order = (sortParams.length > 1 && "desc".equalsIgnoreCase(sortParams[1]))
+                        ? Sort.Order.desc(property)
+                        : Sort.Order.asc(property);
+                sort = Sort.by(order);
+            }
+        }
+
+        return (sort != null) ? PageRequest.of(offset, limit, sort) : PageRequest.of(offset, limit);
     }
 
 }

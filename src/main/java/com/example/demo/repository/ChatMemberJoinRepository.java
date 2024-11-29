@@ -1,6 +1,5 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.ChatRoomEntity;
 import com.example.demo.entity.QChatMemberEntity;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ public class ChatMemberJoinRepository {
 
     public long countByRoomId(UUID roomId) {
         return query.select(qChatMember)
-                .where(qChatMember.chatMemberPK.chatRoom.eq(ChatRoomEntity.create(roomId.toString())))
+                .where(qChatMember.chatRoom.id.eq(roomId))
                 .stream().count();
     }
 

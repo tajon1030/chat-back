@@ -42,5 +42,5 @@ public class MessageBrokerConfig {
         rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
         return rabbitTemplate;
     }
-
+//95001
 }

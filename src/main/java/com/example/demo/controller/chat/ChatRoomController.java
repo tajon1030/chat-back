@@ -5,10 +5,15 @@ import com.example.demo.controller.ApiResult;
 import com.example.demo.dto.ChatMessage;
 import com.example.demo.dto.ChatRoom;
 import com.example.demo.repository.ChatRoomRepository2;
+import com.example.demo.security.UserDetailsImpl;
+import com.example.demo.security.Users;
 import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +36,9 @@ public class ChatRoomController {
      * @return
      */
     @GetMapping("/rooms")
-    public ApiResult<PageCustom<ChatRoom>> room(Pageable pageable) {
+    public ApiResult<PageCustom<ChatRoom>> room(@SortDefault.SortDefaults({
+            @SortDefault(sort="createdDt", direction = Sort.Direction.DESC)
+    }) Pageable pageable) {
         PageCustom<ChatRoom> chatRoomsResponse = chatRoomService.getChatRooms(pageable);
         return ApiResult.OK(chatRoomsResponse);
     }
@@ -39,12 +46,12 @@ public class ChatRoomController {
     /**
      * 채팅방 생성
      *
-     * @param name 채팅방명
+     * @param roomName 채팅방명
      * @return
      */
     @PostMapping("/room")
-    public ApiResult<ChatRoom> createRoom(@RequestParam String name) {
-        return ApiResult.OK(chatRoomService.createChatRoom(name));
+    public ApiResult<ChatRoom> createRoom(@RequestParam(name="name") String roomName, @AuthenticationPrincipal UserDetailsImpl user) {
+        return ApiResult.OK(chatRoomService.createChatRoom(user.getUsername(), roomName));
     }
 
     /**

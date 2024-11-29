@@ -1,26 +1,24 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-@Embeddable
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ChatMemberPK implements Serializable {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_SEQ", nullable = false)
-    private MemberEntity member;
+    private Long memberSeq;
+    private UUID chatRoom;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CHAT_ROOM_ID", nullable = false)
-    private ChatRoomEntity chatRoom;
+    public ChatMemberPK(Long userSeq, String roomId) {
+        this.memberSeq = userSeq;
+        this.chatRoom = UUID.fromString(roomId);
+    }
 }

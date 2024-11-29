@@ -36,7 +36,8 @@ public class MemberController {
         LoginInfo loginInfo = LoginInfo.builder().name(name).token(provider.generateToken(authentication)).build();
 
         // TODO refresh token도 생성하여 저장한다.
+        ApiResult<LoginInfo> ok = ApiResult.OK(loginInfo);
 
-        return ApiResult.OK(loginInfo);
+        return ok;
     }
 }

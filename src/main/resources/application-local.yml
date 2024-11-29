@@ -19,26 +19,28 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3309/chat?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3309/chat?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: 1234
 
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        physical-strategy: com.example.demo.config.UpperCaseSnakeCaseNamingStrategy # 네이밍 설정
       use-new-id-generator-mappings: false
     show-sql: true
     properties:
-      hibernate.format_sql: true
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
       dialect: org.hibernate.dialect.MySQL8InnoDBDialect
-
 
   logging:
     level:
       org.hibernate.SQL: debug
+      org.hibernate.orm.jdbc.bind: trace # 물음표 바인딩 출력되도록
 
 server:
   port: 8083

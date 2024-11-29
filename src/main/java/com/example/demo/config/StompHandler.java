@@ -2,7 +2,9 @@ package com.example.demo.config;
 
 import com.example.demo.dto.ChatMessage;
 import com.example.demo.repository.ChatRoomRepository2;
+import com.example.demo.security.CustomUserDetailsService;
 import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.security.UserDetailsImpl;
 import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -25,6 +28,7 @@ public class StompHandler implements ChannelInterceptor {
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
+    private final CustomUserDetailsService userDetailsService;
     private final ChatRoomRepository2 chatRoomRepository2;
 
 
@@ -42,25 +46,28 @@ public class StompHandler implements ChannelInterceptor {
             // 사용자 인증 정보 설정
             accessor.setUser(authentication);
         } else if (StompCommand.SUBSCRIBE == accessor.getCommand()) {
-            // TODO 새입장유저 - 기존유저 확인해서 새입장유저일경우에만 인원수 증가시키고 입장메시지 발송하도록 한다.
-            // 사용자 인증 정보 설정
-            Authentication authentication = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization"));
-            // header에서 구독 destination정보를 얻고 roomId 추출
+            // header에서 구독 destination정보를로 roomId 추출
             String roomId = chatService.getRoomId(
                     Optional.ofNullable((String) message.getHeaders().get("simpDestination"))
                             .orElse("InvalidRoomId"));
+            // 사용자 인증 정보 설정
+            UserDetails userDetails = userDetailsService.loadUserByUsername(jwtTokenProvider.getUsername(accessor.getFirstNativeHeader("Authorization")));
+            if (userDetails instanceof UserDetailsImpl customUserDetails) {
+                Long userSeq = customUserDetails.getId();
 
-            // 채팅방에 들어온 클라이언트 유저id와 roomId 매핑
-            chatRoomRepository2.setUserEnterInfo(authentication.getName(), roomId);
-            // 채팅방인원수 +1
-            chatRoomRepository2.plusUserCount(roomId);
-            // 클라이언트 입장메시지를 채팅방에 발송
-            String name = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization")).getName();
-            chatService.sendChatMessage(ChatMessage.builder()
-                    .type(ChatMessage.MessageType.ENTER)
-                    .roomId(roomId)
-                    .sender(name)
-                    .build());
+                // 새로입장하는 유저일 경우 인원 수 증가 및 입장메시지 발송
+                if (chatRoomService.isExistsChatMember(userSeq, roomId)) {
+                    // 매핑 추가
+                    // 인원수 증가
+                    // 입장메시지 발송
+                    String name = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization")).getName();
+                    chatService.sendChatMessage(ChatMessage.builder()
+                            .type(ChatMessage.MessageType.ENTER)
+                            .roomId(roomId)
+                            .sender(name)
+                            .build());
+                }
+            }
         }
         return message;
     }

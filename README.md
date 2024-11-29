@@ -61,8 +61,11 @@ redis는 인메모리 DB로 메시지큐와 유사한 기능을 일부 제공한
 #### CHAT_MEMBER
 채팅방(CHAT_ROOM)과 회원(MEMBER)의 다대다 관계를 처리하기위해 생성한 테이블.  
 복합키를 사용할경우 `@EmbeddedId`와 `@IdClass`중 어느것을 사용할것인지에 대한 고민.  
-우선 엔티티 작성 비용을 줄이기 위하여 `@EmbeddedId`를 선택해서 구현하였다.(수정할지도?)
-[복합키를 가지는 JPA 엔티티 생성하기](https://woo-chang.tistory.com/43)
+~~우선 엔티티 작성 비용을 줄이기 위하여 `@EmbeddedId`를 선택해서 구현하였다.~~  
+복합키를 ID로만 다룰 수 있게 하여 DB 조회를 줄이고, 코드의 가독성도 개선할 수 있도록 @IdClass를 사용하기로 하였음  
+[복합키를 가지는 JPA 엔티티 생성하기](https://woo-chang.tistory.com/43)  
+[JPA 엔티티 복합키(Composite Primary Keys) 매핑](https://ykh6242.tistory.com/entry/JPA-%EC%97%94%ED%8B%B0%ED%8B%B0-%EB%B3%B5%ED%95%A9%ED%82%A4Composite-Primary-Keys-%EB%A7%A4%ED%95%91)  
+[복합키, 외래키 Entity 설정하기(@IdClass를 사용하여 식별관계 매핑)](https://ynzu-dev.tistory.com/entry/JPA-%EB%B3%B5%ED%95%A9%ED%82%A4-%EC%99%B8%EB%9E%98%ED%82%A4-Entity-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0IdClass%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-%EC%8B%9D%EB%B3%84%EA%B4%80%EA%B3%84-%EB%A7%A4%ED%95%91)  
 
 #### 비즈니스로직을 어디에 넣을것인가
 [비즈니스로직을 엔티티에 넣기](https://velog.io/@kevin_/엔티티에-비즈니스-로직-찬반)  
@@ -84,4 +87,39 @@ MongoDB는 문서 지향 데이터베이스로, 정형화된 데이터 모델을
 - 사용자 목록 확인  
 `db.getUsers()`  
 - 컬렉션에서 모든 데이터 탐색  
-`db.[collection명].find()`  
+`db.[collection명].find()`
+
+
+### JPA
+#### 네이밍 규칙 설정
+기본 테이블 생성 규칙을 대문자 + SNAKE CASE 로 만들기위해서  
+UpperCaseSnakeCaseNamingStrategy.class를 생성하여 application파일에 추가하였다.  
+
+#### querydsl + data jpa
+[QueryDSL 설정과 Repository에서의 사용](https://sjh9708.tistory.com/174)  
+
+#### querydsl pageable sort하는법
+[QueryDSL Pageable 정렬하기](https://joanyi.tistory.com/83)  
+
+#### querydsl DTO반환
+[QueryDSL return Type에 대하여](https://velog.io/@kimhalin/QueryDSL-return-Type%EC%97%90-%EB%8C%80%ED%95%98%EC%97%AC)  
+
+#### querydsl join
+[QueryDsl Join + On절 + Fetch join](https://nomoreft.tistory.com/30#%EA%B8%B0%EB%B3%B8%EC%A0%81%EC%9D%B8-%EC%83%81%EA%B4%80%EA%B4%80%EA%B3%84-entity-join) 
+
+#### 참고링크
+[Querydsl으로 안전한 쿼리 작성하기 + DataJPA](https://devwithpug.github.io/java/querydsl-with-datajpa/#site-nav)
+
+
+## 기본적인 처리
+### 페이징
+#### PageableeHandlerMethodArgumentResolver
+아규먼트리졸버를 이용하여 offset과 limit값이 적절한 값이 들어오도록 처리하였음  
+
+#### PageCustom
+커스텀한 페이지네이션 값을 리턴해줄수있도록 하였음  
+
+### 응답값 형식 지정하기
+ApiResult를 이용하여 기본적인 응답값 형식을 지정하였음  
+
+
