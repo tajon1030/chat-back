@@ -1,6 +1,7 @@
 package com.example.demo.exception;
 
 import com.example.demo.controller.ApiResult;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,5 +25,11 @@ public class CustomExceptionHandler {
         log.error("Error occurs: {}", e.toString());
         return new ResponseEntity<>(ERROR(ErrorCode.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResult<?>> handleException(ExpiredJwtException e) {
+        log.error("Error occurs: {}", e.toString());
+        return new ResponseEntity<>(ERROR(ErrorCode.INVALID_TOKEN), HttpStatus.NOT_ACCEPTABLE);
+    }
+
 
 }

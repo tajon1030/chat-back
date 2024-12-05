@@ -10,6 +10,8 @@ import java.util.UUID;
 public interface ChatRoomCustomRepository {
     Page<ChatRoom> findChatRoomPage(Pageable pageable);
 
+    Page<ChatRoom> findEnteredChatRoomPage(Long userSeq, Pageable pageable);
+
     Optional<ChatRoom> findChatRoomById(UUID id);
 
 }

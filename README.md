@@ -46,14 +46,21 @@ redis는 인메모리 DB로 메시지큐와 유사한 기능을 일부 제공한
 ### rabbitMQ
 메시지 큐 시스템인 rabbitMQ를 사용하면 빠른 메시지전달과 비동기식 통신을 처리하는데 적합하다.  
 메시지를 큐에 넣는순간부터 큐에서 처리가 완료될때까지 손실없이 처리할수있기때문에(재시도처리 가능)  
-고도화 과정에서 redis에서 rabbitMQ로 메시지큐를 변경하였다.  
-[RabbitMQ를 사용해 메세지 주고 받기](https://velog.io/@power0080/Message-QueueRabbitMQ를-사용해-메세지-주고-받기)
+고도화 과정에서 redis에서 rabbitMQ로 메시지큐를 변경하였다. 
+`docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 -p 61613:61613 --restart=unless-stopped -e RABBITMQ_DEFAULT_USER=username -e RABBITMQ_DEFAULT_PASS=password rabbitmq:management`  
+(5672 기본 포트, 15672 웹 메니지먼트 포트, 61613 STOMP포트)  
+`rabbitmq-plugins enable rabbitmq_stomp`  
+STOMP 호환 플러그인 설치  
+[RabbitMQ를 사용해 메세지 주고 받기](https://velog.io/@power0080/Message-QueueRabbitMQ를-사용해-메세지-주고-받기)  
+[Road To MQ WebSocket + STOMP + RabbitMQ로 메세징 (Docker)](https://velog.io/@joonoo3/Road-To-MQ-WebSocket-STOMP-RabbitMQ%EB%A1%9C-%EB%A9%94%EC%84%B8%EC%A7%95-Docker)  
+[재능교환소 Spring Boot와 RabbitMQ로 확장 가능한 1:1 채팅 구축하기](https://velog.io/@10000ji_/재능교환소-Spring-Boot와-RabbitMQ로-확장-가능한-11-채팅-구축하기)  
+[Project Spring + Stomp 테스트 하는 과정.. (실시간 채팅 구현)](https://woo0doo.tistory.com/38)  
 
 ## DB
 영속적 데이터(채팅 메시지) 저장을 위해서 DB를 연동.  
 ### MySQL
 기본 사용자 정보 및 채팅방 정보 등은 관계형database인 MySQL에서 관리하도록 한다.  
-`docker run -p 3309:3306 -e MYSQL_ROOT_PASSWORD=1234 --name mysql-container mysql:lts`  
+`docker run -p 3309:3306 -e MYSQL_ROOT_PASSWORD=1234 --name mysql-container mysql:lts`
 
 #### CHAT_COOM
 자동증가 ID를 사용할경우 roomId순서를 예측할수있기때문에 보안위험이 증가할수있다. 따라서 uuid를 사용하여 채팅방의 ID를 설정해주도록 하였다.  
@@ -123,3 +130,9 @@ UpperCaseSnakeCaseNamingStrategy.class를 생성하여 application파일에 추�
 ApiResult를 이용하여 기본적인 응답값 형식을 지정하였음  
 
 
+
+## TODO
+SockJS -> STOMP로 변경  
+
+## 참고
+- 채팅서버 테스트 [websocket-debug-tool](https://jiangxy.github.io/websocket-debug-tool/)  

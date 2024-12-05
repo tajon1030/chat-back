@@ -50,6 +50,11 @@ public class ChatRoomCustomRepositoryImpl implements ChatRoomCustomRepository {
     }
 
     @Override
+    public Page<ChatRoom> findEnteredChatRoomPage(Long userSeq, Pageable pageable) {
+        return null;
+    }
+
+    @Override
     public Optional<ChatRoom> findChatRoomById(UUID id) {
         return Optional.ofNullable(query.select(
                         Projections.bean(ChatRoom.class,

@@ -30,4 +30,14 @@ public class ChatRoomEntity extends MutableBaseEntity {
                 .name(name)
                 .build();
     }
+
+    public ChatRoomEntity enter(ChatMemberEntity chatMember){
+        this.chatMember.add(chatMember);
+        return this;
+    }
+
+    public ChatRoomEntity exit(ChatMemberEntity chatMember){
+        this.chatMember.remove(chatMember);
+        return this;
+    }
 }

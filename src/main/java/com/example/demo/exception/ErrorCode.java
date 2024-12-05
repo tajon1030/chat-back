@@ -15,6 +15,7 @@ public enum ErrorCode {
 
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "MEMBER-ERR-409", "email is duplicated"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER-ERR-404", "user not founded"),
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT-ERR-404", "chatRoom not founded"),
     ARCHIVE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARCHIVE-ERR-404", "archive not founded"),
     INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "MEMBER-ERR-401", "Permission is invalid"),
 

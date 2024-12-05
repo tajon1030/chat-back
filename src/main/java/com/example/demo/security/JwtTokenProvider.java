@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -32,9 +31,11 @@ public class JwtTokenProvider {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
+        UserDetailsImpl principal = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
                 .id(authentication.getName())
+                .claim("seq",principal.getSeq())
+                .claim("email", principal.getEmail())
                 .claim("roleNames", authorities)
                 .issuedAt(Date.from(ZonedDateTime.now().toInstant()))// 토큰발행일자
                 .expiration(Date.from(ZonedDateTime.now().plusMinutes(tokenValidMin).toInstant()))
@@ -76,17 +77,25 @@ public class JwtTokenProvider {
         return getClaims(token).getId();
     }
 
+    public String getEmail(String token) {
+        return (String) getClaims(token).get("email");
+    }
+
+    public Long getSeq(String token) {
+        return (Long) getClaims(token).get("seq");
+    }
+
     // JWT 토큰에서 사용자 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
         List<SimpleGrantedAuthority> roles = Arrays.stream(getClaims(token).get("roleNames").toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        String username = getUsername(token);
-
         //https://velog.io/@sonaky47/Spring-Security-Jwt-토큰정보로-필터링-된-유저정보를-컨트롤러단에서-AuthenticationPricipal-어노테이션을-통해-가져오는법
-        User principal = new User(username, "", roles);
-        return new UsernamePasswordAuthenticationToken(principal, "", roles);
+//        UserDetailsImpl principal = new UserDetailsImpl(getSeq(token), getUsername(token), getEmail(token),"" ,roles);
+
+//        return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(null, "", roles);
     }
 
     public boolean validateToken(String token) {

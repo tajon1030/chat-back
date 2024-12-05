@@ -10,7 +10,9 @@ spring:
     port: 5672
     username: username
     password: password
-    queue:
+    exchange: chat.exchange
+    queue: chat.queue
+    routing: '*.room.*'
 
   data:
     mongodb:

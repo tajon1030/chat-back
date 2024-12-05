@@ -21,12 +21,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UsersRepository userRepository;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Users user = userRepository.findByUsername(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-
-        Users user = new Users(username, "test@gmail.com", BCrypt.hashpw("1234", BCrypt.gensalt()));
+        Users user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+//        Users user = new Users(username, "test@gmail.com", BCrypt.hashpw("1234", BCrypt.gensalt()));
         user.setRoles(Set.of(new Role(ERole.ROLE_USER)));
         user.setSeq(1L);
 

@@ -5,9 +5,13 @@ import com.example.demo.repository.ChatMessageRepository;
 import com.example.demo.repository.ChatRoomRepository2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
@@ -15,20 +19,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @Log4j2
 public class ChatService {
-    
-    private final ChatRoomRepository2 chatRoomRepository2;
     private final ChatMessageRepository chatMessageRepository;
-    private final RedisTemplate redisTemplate;
-    private final ChannelTopic channelTopic;
+    private static final String EXCHANGE_NAME = "sample.exchange"; // chat.exchange
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     /**
      * destination에서 room정보추출
+     *
      * @param destination
      * @return
      */
-    public String getRoomId(String destination){
+    public String getRoomId(String destination) {
         int lastIndex = destination.lastIndexOf("/");
-        if( lastIndex != -1) {
+        if (lastIndex != -1) {
             return destination.substring(lastIndex + 1);
         }
         return "";
@@ -36,10 +40,11 @@ public class ChatService {
 
     /**
      * 메시지 발송
+     *
      * @param chatMessage
      */
-    public void sendChatMessage(ChatMessage chatMessage){
-        chatMessage.setUserCount(chatRoomRepository2.getUserCount(chatMessage.getRoomId()));
+    @Transactional
+    public void sendChatMessage(ChatMessage chatMessage) {
         if (ChatMessage.MessageType.ENTER.equals(chatMessage.getType())) {
             chatMessage.setMessage(chatMessage.getSender() + "님이 방에 입장했습니다.");
             chatMessage.setSender("[알림]");
@@ -47,7 +52,10 @@ public class ChatService {
             chatMessage.setMessage(chatMessage.getSender() + "님이 방에서 나갔습니다.");
             chatMessage.setSender("[알림]");
         }
-        redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
+//        // redis로 메시지 발행
+//        redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
+        // rabbitmq로 메시지 발행
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, "sample.routing.#", chatMessage); //"room." + message.getRoomId()
 
         // 메시지 저장
         chatMessageRepository.save(chatMessage);
@@ -59,7 +67,7 @@ public class ChatService {
      * @param roomId 채팅방 id
      * @return
      */
-    public List<ChatMessage> getChatMessages(String roomId){
+    public List<ChatMessage> getChatMessages(String roomId) {
         // TODO 페이징 처리 필요
         return chatMessageRepository.findAllChatMessageByRoomId(roomId);
     }

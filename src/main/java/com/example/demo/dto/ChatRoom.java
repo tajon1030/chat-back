@@ -15,6 +15,14 @@ public class ChatRoom {
     private UUID roomId;
     private String name;
     private long userCount;
+    private boolean isEntered;
+
+    public static ChatRoom fromEntity(ChatRoomEntity entity) {
+        return ChatRoom.builder()
+                .roomId(entity.getId())
+                .name(entity.getName())
+                .build();
+    }
 
     public static ChatRoom fromEntity(ChatRoomEntity entity, long userCount) {
         return ChatRoom.builder()
@@ -23,10 +31,14 @@ public class ChatRoom {
                 .userCount(userCount)
                 .build();
     }
-    public ChatRoom(String roomId, String name, long userCount) {
-        this.roomId = UUID.fromString(roomId);
-        this.name = name;
-        this.userCount = userCount;
+
+    public static ChatRoom fromEntity(ChatRoomEntity entity, long userCount, boolean isEntered) {
+        return ChatRoom.builder()
+                .roomId(entity.getId())
+                .name(entity.getName())
+                .userCount(userCount)
+                .isEntered(isEntered)
+                .build();
     }
 
 }
