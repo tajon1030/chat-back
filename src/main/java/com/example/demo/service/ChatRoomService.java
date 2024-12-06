@@ -127,6 +127,7 @@ public class ChatRoomService {
                 .type(ChatMessage.MessageType.QUIT)
                 .roomId(roomId)
                 .sender(users.getUsername())
+                .senderSeq(users.getSeq())
                 .build());
 
         return ChatRoom.fromEntity(chatRoomEntity);

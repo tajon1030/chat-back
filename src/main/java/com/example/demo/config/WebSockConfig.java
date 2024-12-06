@@ -18,14 +18,6 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-//        registry.enableSimpleBroker("/sub"); // 내장 메모리 기반 브로커
-
-        // 메시지 구독 url
-//        registry.enableStompBrokerRelay("/exchange")
-//                        .setClientLogin("user")
-//                        .setClientPasscode("password")
-//                        .setRelayPort();
-
         // 메시지 브로커 설정
         registry.setPathMatcher(new AntPathMatcher(".")); // url을 chat/room/3 -> chat.room.3으로 참조하기 위한 설정
         registry.enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue")

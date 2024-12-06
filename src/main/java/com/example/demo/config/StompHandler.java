@@ -1,6 +1,8 @@
 package com.example.demo.config;
 
 import com.example.demo.dto.ChatMessage;
+import com.example.demo.exception.CustomException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.ChatService;
@@ -11,7 +13,6 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -32,21 +33,16 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
         if (StompCommand.CONNECT == accessor.getCommand()) {
-            // 사용자 인증 정보 설정
-            Authentication authentication = jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("Authorization"));
             if (!jwtTokenProvider.validateToken(accessor.getFirstNativeHeader("Authorization"))) {
-                throw new RuntimeException("token expired");
+                throw new CustomException(ErrorCode.INVALID_TOKEN);
             }
-            // 사용자 인증 정보 설정
-            accessor.setUser(authentication);
         } else if (StompCommand.SUBSCRIBE == accessor.getCommand()) {
-            // header에서 구독 destination정보를로 roomId 추출
             String roomId = chatService.getRoomId(
                     Optional.ofNullable((String) message.getHeaders().get("simpDestination"))
                             .orElse("InvalidRoomId"));
             String token = accessor.getFirstNativeHeader("Authorization");
             // 새로입장하는 유저일 경우 인원 수 증가 및 입장메시지 발송
-            if (chatRoomService.isExistsChatMember(jwtTokenProvider.getSeq(token), roomId)) {
+            if (!chatRoomService.isExistsChatMember(jwtTokenProvider.getSeq(token), roomId)) {
                 // 매핑 추가 및 인원수 증가
                 chatRoomService.enterChatRoom(jwtTokenProvider.getSeq(token), roomId);
                 // 입장메시지 발송
@@ -54,6 +50,7 @@ public class StompHandler implements ChannelInterceptor {
                         .type(ChatMessage.MessageType.ENTER)
                         .roomId(roomId)
                         .sender(jwtTokenProvider.getUsername(token))
+                        .senderSeq(jwtTokenProvider.getSeq(token))
                         .build());
             }
         }

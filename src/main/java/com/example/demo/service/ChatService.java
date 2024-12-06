@@ -2,16 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.dto.ChatMessage;
 import com.example.demo.repository.ChatMessageRepository;
-import com.example.demo.repository.ChatRoomRepository2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
@@ -20,9 +16,9 @@ import java.util.List;
 @Log4j2
 public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
-    private static final String EXCHANGE_NAME = "sample.exchange"; // chat.exchange
-    @Autowired
-    RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    @Value("${spring.rabbitmq.exchange}")
+    private String EXCHANGE_NAME; // chat.exchange
 
     /**
      * destination에서 room정보추출
@@ -52,11 +48,8 @@ public class ChatService {
             chatMessage.setMessage(chatMessage.getSender() + "님이 방에서 나갔습니다.");
             chatMessage.setSender("[알림]");
         }
-//        // redis로 메시지 발행
-//        redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
         // rabbitmq로 메시지 발행
-        rabbitTemplate.convertAndSend(EXCHANGE_NAME, "sample.routing.#", chatMessage); //"room." + message.getRoomId()
-
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, "room." + chatMessage.getRoomId(), chatMessage);
         // 메시지 저장
         chatMessageRepository.save(chatMessage);
     }

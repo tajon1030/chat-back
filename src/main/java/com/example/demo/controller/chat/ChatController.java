@@ -9,6 +9,9 @@ import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -27,17 +30,17 @@ public class ChatController {
     private final ChatRoomService chatRoomService;
     private final ChatService chatService;
 
-    @MessageMapping("/chat/message")
+    @MessageMapping("chat.message")
     public void greeting(ChatMessage message, @Header("Authorization") String token) {
-        String id = provider.getUsername(token);
         // 로그인 회원 정보로 대화명 설정
-        message.setSender(id);
+        message.setSender(provider.getUsername(token));
+        message.setSenderSeq(provider.getSeq(token));
         // Websocket에 발행된 메시지를 발행
         chatService.sendChatMessage(message);
     }
 
     /**
-     * 참여 채팅방 대화내용 조회
+     * 참여 채팅방 이전 대화내용 조회
      *
      * @param roomId
      * @param user
@@ -54,4 +57,11 @@ public class ChatController {
                 .body(chatService.getChatMessages(roomId));
     }
 
+
+
+    //receive()는 단순히 큐에 들어온 메세지를 소비만 한다. (현재는 디버그용도)
+    @RabbitListener(queues = "chat.queue")
+    public void receive(ChatMessage message){
+        log.info("received : " + message.getMessage());
+    }
 }

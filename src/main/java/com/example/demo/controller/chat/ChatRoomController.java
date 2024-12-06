@@ -3,10 +3,8 @@ package com.example.demo.controller.chat;
 import com.example.demo.config.page.PageCustom;
 import com.example.demo.controller.ApiResult;
 import com.example.demo.dto.ChatRoom;
-import com.example.demo.repository.ChatRoomRepository2;
 import com.example.demo.security.UserDetailsImpl;
 import com.example.demo.service.ChatRoomService;
-import com.example.demo.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/chat")
 public class ChatRoomController {
 
-    private final ChatRoomRepository2 chatRoomRepository2;
-    private final ChatService chatService;
     private final ChatRoomService chatRoomService;
 
     /**

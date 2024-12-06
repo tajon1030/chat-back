@@ -12,7 +12,7 @@ spring:
     password: password
     exchange: chat.exchange
     queue: chat.queue
-    routing: '*.room.*'
+    routing: room.*
 
   data:
     mongodb:

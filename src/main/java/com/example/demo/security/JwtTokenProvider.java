@@ -78,11 +78,11 @@ public class JwtTokenProvider {
     }
 
     public String getEmail(String token) {
-        return (String) getClaims(token).get("email");
+        return String.valueOf(getClaims(token).get("email"));
     }
 
     public Long getSeq(String token) {
-        return (Long) getClaims(token).get("seq");
+        return Long.parseLong(String.valueOf(getClaims(token).get("seq")));
     }
 
     // JWT 토큰에서 사용자 인증 정보 가져오기

@@ -4,6 +4,8 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -22,6 +24,11 @@ public class ChatMessage {
 
     private MessageType type; // 메시지 타입
     private String roomId; // 방번호
+    // XXX 이름을 분리해야하나?
     private String sender; // 메시지 보낸사람
+    private Long senderSeq; // 메시지 보낸사람(pk)
     private String message; // 메시지
+
+    @Builder.Default
+    private LocalDateTime sendDt = LocalDateTime.now();
 }
