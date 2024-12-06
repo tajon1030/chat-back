@@ -46,15 +46,23 @@ redis는 인메모리 DB로 메시지큐와 유사한 기능을 일부 제공한
 ### rabbitMQ
 메시지 큐 시스템인 rabbitMQ를 사용하면 빠른 메시지전달과 비동기식 통신을 처리하는데 적합하다.  
 메시지를 큐에 넣는순간부터 큐에서 처리가 완료될때까지 손실없이 처리할수있기때문에(재시도처리 가능)  
-고도화 과정에서 redis에서 rabbitMQ로 메시지큐를 변경하였다. 
-`docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 -p 61613:61613 --restart=unless-stopped -e RABBITMQ_DEFAULT_USER=username -e RABBITMQ_DEFAULT_PASS=password rabbitmq:management`  
+고도화 과정에서 redis에서 rabbitMQ로 메시지큐를 변경하였다.
 (5672 기본 포트, 15672 웹 메니지먼트 포트, 61613 STOMP포트)  
-`rabbitmq-plugins enable rabbitmq_stomp`  
+`docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 -p 61613:61613 --restart=unless-stopped -e RABBITMQ_DEFAULT_USER=username -e RABBITMQ_DEFAULT_PASS=password rabbitmq:management`  
 STOMP 호환 플러그인 설치  
+`rabbitmq-plugins enable rabbitmq_stomp`  
+
+#### RabbitMQ의 구동방식
+1. 클라이언트(Producer)가 라우팅키가 포함된 메시지를 서버로 보내면 서버가 Rabbit Broker로 이를 위임한다.  
+2. 이 메시지에는 어떤 Exchange와 Queue로 가야하는지에 대한 내용이 바인딩 되어있어서, 해당하는 Exchange로 메시지가 보내진 뒤,
+3. Exchange에서는 메시지에 바인딩 되어있는 Queue로 메시지를 보낸다.  
+4. 클라이언트(Consumer)는 Queue를 구독하여 주기적으로 polling하며 메시지(데이터)를 가져온다.  
+
 [RabbitMQ를 사용해 메세지 주고 받기](https://velog.io/@power0080/Message-QueueRabbitMQ를-사용해-메세지-주고-받기)  
 [Road To MQ WebSocket + STOMP + RabbitMQ로 메세징 (Docker)](https://velog.io/@joonoo3/Road-To-MQ-WebSocket-STOMP-RabbitMQ%EB%A1%9C-%EB%A9%94%EC%84%B8%EC%A7%95-Docker)  
 [재능교환소 Spring Boot와 RabbitMQ로 확장 가능한 1:1 채팅 구축하기](https://velog.io/@10000ji_/재능교환소-Spring-Boot와-RabbitMQ로-확장-가능한-11-채팅-구축하기)  
 [Project Spring + Stomp 테스트 하는 과정.. (실시간 채팅 구현)](https://woo0doo.tistory.com/38)  
+구독 구현시 도움이 되었던 블로그 : [Spring Boot WebSocket과 채팅 (4) - RabbitMQ](https://dev-gorany.tistory.com/325)  
 
 ## DB
 영속적 데이터(채팅 메시지) 저장을 위해서 DB를 연동.  
