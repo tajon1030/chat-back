@@ -141,6 +141,13 @@ ApiResult를 이용하여 기본적인 응답값 형식을 지정하였음
 
 ## TODO
 SockJS -> STOMP로 변경  
+refreshToken  
+이전 메시지 내역 조회  
+인원수 자동 새로고침  
+메시지 읽었는지 여부  
+마지막 메시지가 목록에 함께 뜨도록  
+회원차단  
+처음에 방을 만들었을때 바로 입장하게하고, 방에서 나가게되면(인원수가 0이면) 화면에 안보이게 했으면 좋겟음 -> 방 삭제처리  
 
 ## 참고
 - 채팅서버 테스트 [websocket-debug-tool](https://jiangxy.github.io/websocket-debug-tool/)  

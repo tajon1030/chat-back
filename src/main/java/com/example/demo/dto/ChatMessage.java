@@ -23,6 +23,7 @@ public class ChatMessage {
     }
 
     private MessageType type; // 메시지 타입
+    // 채팅방 정보
     private String roomId; // 방번호
     // XXX 이름을 분리해야하나?
     private String sender; // 메시지 보낸사람
