@@ -32,7 +32,6 @@ public class ChatController {
         // 로그인 회원 정보로 대화명 설정
         message.setSender(provider.getUsername(token));
         message.setSenderSeq(provider.getSeq(token));
-        //message.setMemberCount();
         // Websocket에 발행된 메시지를 발행
         chatService.sendChatMessage(message);
     }

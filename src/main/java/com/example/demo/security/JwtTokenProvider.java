@@ -24,9 +24,18 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     @Value("${spring.jwt.secret}")
     private String secretKey;
-    private long tokenValidMin = 60; // 60분
+    private static final long TOKEN_VALID_MIN = 30;            // 30분
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 60 * 24 * 7;  // 7일
 
-    public String generateToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
+        return generateToken(authentication, TOKEN_VALID_MIN);
+    }
+
+    public String generateRefreshToken(Authentication authentication) {
+        return generateToken(authentication, REFRESH_TOKEN_EXPIRE_TIME);
+    }
+
+    public String generateToken(Authentication authentication, long time) {
         // 인증된 사용자의 권한 목록 조회
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -34,11 +43,11 @@ public class JwtTokenProvider {
         UserDetailsImpl principal = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
                 .id(authentication.getName())
-                .claim("seq",principal.getSeq())
+                .claim("seq", principal.getSeq())
                 .claim("email", principal.getEmail())
                 .claim("roleNames", authorities)
                 .issuedAt(Date.from(ZonedDateTime.now().toInstant()))// 토큰발행일자
-                .expiration(Date.from(ZonedDateTime.now().plusMinutes(tokenValidMin).toInstant()))
+                .expiration(Date.from(ZonedDateTime.now().plusMinutes(time).toInstant()))
                 .signWith(key())
                 .compact();
     }
@@ -92,13 +101,12 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
 
         //https://velog.io/@sonaky47/Spring-Security-Jwt-토큰정보로-필터링-된-유저정보를-컨트롤러단에서-AuthenticationPricipal-어노테이션을-통해-가져오는법
-//        UserDetailsImpl principal = new UserDetailsImpl(getSeq(token), getUsername(token), getEmail(token),"" ,roles);
-
-//        return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
-        return new UsernamePasswordAuthenticationToken(null, "", roles);
+        UserDetailsImpl principal = new UserDetailsImpl(getSeq(token), getUsername(token), getEmail(token),"" ,roles);
+        return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
     }
 
     public boolean validateToken(String token) {
+        // 어짜피 만료가 되면 error throw이기때문에 boolean 리턴값은 오류가 아니면 무조건 true
         return getClaims(token).getExpiration().after(Date.from(ZonedDateTime.now().toInstant()));
     }
 

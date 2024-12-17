@@ -11,6 +11,7 @@ public enum ErrorCode {
     KAKAO_TOKEN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER-ERR-500", "fail to get kakaoToken"),
     KAKAO_PROFILE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER-ERR-500", "fail to get kakaoProfile"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "MEMBER-ERR-401", "Token is invalid"),
+    NULL_REFRESH(HttpStatus.UNAUTHORIZED, "MEMBER-ERR-401", "Refresh Token is empty"),
 
 
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "MEMBER-ERR-409", "email is duplicated"),

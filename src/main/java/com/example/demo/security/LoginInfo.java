@@ -6,11 +6,13 @@ import lombok.Getter;
 @Getter
 public class LoginInfo {
     private String name;
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 
     @Builder
-    public LoginInfo(String name, String token) {
+    public LoginInfo(String name, String accessToken, String refreshToken) {
         this.name = name;
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 }
